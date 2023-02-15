@@ -27,7 +27,7 @@ Key code:
 #Running the OS
 So far it is unknown if this works on real hardware so we will use VMWare for this.
 Download the ISO file and setup up a VMWare machine with
-* 256 mb of memory
+* 512 mb of memory
 * 500 mb of hard disk space
 * and 1 processor
 
