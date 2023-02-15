@@ -216,13 +216,20 @@ namespace Mos.Applications
                 case "rm":
                     if(InForceArgs(args.Count, 1, 1))
                     {
-                        if(File.Exists(@dir + "\\" + args[0]))
+                        if (programMode)
                         {
-                            File.Delete(@dir + "\\" + args[0]);
+                            if (File.Exists(@dir + "\\" + args[0]))
+                            {
+                                File.Delete(@dir + "\\" + args[0]);
+                            }
+                            else
+                            {
+                                WriteLine("File does not exist!!!", Color.Red);
+                            }
                         }
                         else
                         {
-                            WriteLine("File does not exist!!!", Color.Red);
+                            WriteLine("Can only be used while running a program", Color.Red);
                         }
                     }
                     break;
@@ -249,6 +256,23 @@ namespace Mos.Applications
                         {
                             WriteLine("Directory does not exist!!!", Color.Red);
                         }
+                    }
+                    break;
+                case "help":
+                    if(InForceArgs(args.Count, 0, 0))
+                    {
+                        WriteLine("cd [directory] - Change directory", Color.White);
+                        WriteLine("cat [file] - Print file", Color.White);
+                        WriteLine("mkdir [directory] - Create directory", Color.White);
+                        WriteLine("touch [file] - Create file", Color.White);
+                        WriteLine("edit [file] [text] - Edit file", Color.White);
+                        WriteLine("cl [file] [args] - Run file with CreateLang", Color.White);
+                        WriteLine("notepad [file] - Open notepad", Color.White);
+                        WriteLine("rm [file] - Delete file", Color.White);
+                        WriteLine("rmdir [directory] - Delete directory", Color.White);
+                        WriteLine("ls - Shows all of the files in a directory", Color.White);
+                        WriteLine("info - shows some info about the OS", Color.White);
+                        WriteLine("echo [string] - prints a string to the screen", Color.White);
                     }
                     break;
                 default:

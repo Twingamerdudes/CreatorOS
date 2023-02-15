@@ -55,7 +55,7 @@ namespace Mos.UI
                 foreach (char c in line)
                 { 
                     w++;
-                    if (w * 10 + 5 >= width) { 
+                    if (w * 12 + 5 >= width) { 
                         builtText += "\n"; 
                         w = 0;
                     }
