@@ -2,6 +2,16 @@
 This is a OS that is made with cosmos and tries to impower the developers.
 
 # Features
+Key code:
+
+✔️ Implemented
+
+🟨 Is working but not fully implemented
+
+❔ Unknown
+
+✖️ Not Implemented
+
 | Feature | Implemented |
 |---------|-------------|
 | GUI     | ✔️         |
