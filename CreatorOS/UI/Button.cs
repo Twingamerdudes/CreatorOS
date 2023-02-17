@@ -1,41 +1,41 @@
-﻿using Cosmos.System.Graphics.Fonts;
-using SipaaKernelV3.Graphics;
-using Cosmos.System;
+﻿using Cosmos.System;
 using System;
-using Mos.Tools;
+using PrismGraphics;
+using PrismGraphics.Extentions;
+using CreatorOS.Tools;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     public class Button
     {
         public string text;
-        public uint width;
-        public uint height;
-        public uint x = 0;
-        public uint y = 0;
-        public SipaVGA vga;
+        public ushort width;
+        public ushort height;
+        public int x = 0;
+        public int y = 0;
+        public VBECanvas vga;
         public Action<Button> callback;
         public bool Disabled = false;
         TextRenderer TextRenderer = new TextRenderer();
-        public Button(SipaVGA vga, string text, uint x, uint y, uint height, Action<Button> callback)
+        public Button(VBECanvas vga, string text, int x, int y, ushort height, Action<Button> callback)
         {
             this.text = text;
             this.x = x;
             this.y = y;
-            this.width = (uint)text.Length * 15;
+            this.width = (ushort)((ushort)text.Length * 15);
             this.height = height;
             this.vga = vga;
             this.callback = callback;
         }
-        public Button(SipaVGA vga, string text, uint height, Action<Button> callback)
+        public Button(VBECanvas vga, string text, ushort height, Action<Button> callback)
         {
             this.text = text;
-            this.width = (uint) text.Length * 15;
+            this.width = (ushort)((ushort)text.Length * 15);
             this.height = height;
             this.vga = vga;
             this.callback = callback;
         }
-        public Button(SipaVGA vga, string text, uint x, uint y, uint width, uint height, Action<Button> callback)
+        public Button(VBECanvas vga, string text, int x, int y, ushort width, ushort height, Action<Button> callback)
         {
             this.text = text;
             this.x = x;
@@ -47,19 +47,19 @@ namespace Mos.UI
         }
         public void Render()
         {
-            vga.DrawRectangle(x, y, width, height, 1, (uint)Color.White.ToSystemDrawingColor().ToArgb());
+            vga.DrawRectangle(x, y, width, height, 1, Color.White);
             //render some text in the center of the button
-            TextRenderer.DrawTTFString(x + (width / 2) - (uint)(text.Length / 3) * 15, y + (height / 2) - 5, text, vga, "Roboto", System.Drawing.Color.White);
+            vga.DrawString((int)(x + (width / 2) - (uint)(text.Length / 3) * 15), y + (height / 2) - 5, text, Fonts.roboto, Color.White);
         }
         public void Update(int newX=-255, int newY=-255)
         {
             if(newX != -255)
             {
-                x = (uint)newX;
+                x = newX;
             }
             if(newY != -255)
             {
-                y = (uint)newY;
+                y = newY;
             }
             Render();
             if (MouseManager.X > x && MouseManager.X < x + width && MouseManager.Y > y && MouseManager.Y < y + height)

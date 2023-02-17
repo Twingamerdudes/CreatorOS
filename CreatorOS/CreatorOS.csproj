@@ -18,6 +18,8 @@
         <Description>Use VMware Player or Workstation to deploy and debug.</Description>
         <PxeInterface>192.168.0.8</PxeInterface>
         <DebugEnabled>False</DebugEnabled>
+        <CompileVBEMultiboot>True</CompileVBEMultiboot>
+        <VBEResolution>800x600x32</VBEResolution>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,17 +38,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Cosmos.Build" Version="0-*" NoWarn="NU1604" />
-        <PackageReference Include="Cosmos.Debug.Kernel" Version="0-*" NoWarn="NU1604" />
-        <PackageReference Include="Cosmos.System2" Version="0-*" NoWarn="NU1604" />
+        <PackageReference Include="CosMos.Build" Version="0-*" NoWarn="NU1604" />
+        <PackageReference Include="CosMos.Debug.Kernel" Version="0-*" NoWarn="NU1604" />
+        <PackageReference Include="CosMos.System2" Version="0-*" NoWarn="NU1604" />
     </ItemGroup>
 
     <ItemGroup>
       <Reference Include="CosmosTTF">
         <HintPath>..\CosmosTTF.dll</HintPath>
       </Reference>
-      <Reference Include="SipaaKernelV3.Graphics">
-        <HintPath>..\SipaaKernelV3.Graphics.dll</HintPath>
+      <Reference Include="PrismGraphics">
+        <HintPath>..\PrismGraphics.dll</HintPath>
       </Reference>
     </ItemGroup>
 

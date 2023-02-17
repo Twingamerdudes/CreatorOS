@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using Cosmos.System;
-using Mos.UI;
-using SipaaKernelV3.Graphics;
-using Color = System.Drawing.Color;
+using CreatorOS.UI;
+using PrismGraphics;
+using PrismGraphics.Extentions;
 
-namespace Mos.Applications
+namespace CreatorOS.Applications
 {
     class Terminal : Window
     {
@@ -15,7 +15,7 @@ namespace Mos.Applications
         string dir = @"0:";
         string temp = "";
         bool writingText = false;
-        public Terminal(SipaVGA vga, string title, uint width, uint height) : base(vga, title, width, height)
+        public Terminal(VBECanvas vga, string title, ushort width, ushort height) : base(vga, title, width, height)
         {
             
         }
@@ -105,7 +105,7 @@ namespace Mos.Applications
                         var directories = Directory.GetDirectories(dir);
                         foreach(string directory in directories)
                         {
-                            WriteLine(directory, Color.LightBlue);
+                            WriteLine(directory, Color.GoogleBlue);
                         }
                         foreach(var file in files)
                         {
@@ -323,7 +323,7 @@ namespace Mos.Applications
             }
             else
             {
-                WriteLine("Invalid Args!!!", System.Drawing.Color.Red);
+                WriteLine("Invalid Args!!!", Color.Red);
                 return false;
             }
         }
@@ -342,6 +342,10 @@ namespace Mos.Applications
                             if(id <= args.Count){
                                 tokens[index] = args[id];
                             }
+                        }
+                        if(token == "temp")
+                        {
+                            tokens[index] = temp;
                         }
                         index++;
                     }

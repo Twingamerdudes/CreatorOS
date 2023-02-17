@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using SipaaKernelV3.Graphics;
+using PrismGraphics;
+using PrismGraphics.Extentions;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     class Taskbar
     {
-        SipaVGA vga;
+        VBECanvas vga;
         int height;
         private Button startMenu;
         private List<Button> taskbarButtons = new List<Button>();
@@ -14,11 +15,11 @@ namespace Mos.UI
         {
             button.text = "sus";
         }
-        public Taskbar(SipaVGA vga, int height)
+        public Taskbar(VBECanvas vga, int height)
         {
             this.vga = vga;
             this.height = height;
-            startMenu = new Button(vga, "Menu", 0, 600 - (uint)height, 50, test);
+            startMenu = new Button(vga, "Menu", 0, 600 - height, 50, test);
         }
         public void AddButton(Button button)
         {
@@ -28,7 +29,7 @@ namespace Mos.UI
             {
                 x += b.width;
             }
-            newButton.x = x + (newButton.width / 2);
+            newButton.x = (int)(x + (newButton.width / 2));
             newButton.y = 600 - newButton.height;
             taskbarButtons.Add(newButton);
         }
@@ -38,7 +39,7 @@ namespace Mos.UI
         }
         public void Render()
         {
-            vga.DrawFilledRectangle(20, 600 - (uint)height, 800, (uint)height, (uint)new Color(32, 32, 32).ToSystemDrawingColor().ToArgb());
+            vga.DrawFilledRectangle(20, 600 - height, 800, (ushort)height, 0, Color.FromARGB(255, 32, 32, 32));
             startMenu.Update();
             foreach (Button button in taskbarButtons)
             {

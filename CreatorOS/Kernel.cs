@@ -1,21 +1,19 @@
 ﻿using Sys = Cosmos.System;
-using SipaaKernelV3.Graphics;
-using Mos.Assets;
-using Mos.UI;
+using PrismGraphics;
+using CreatorOS.Assets;
+using CreatorOS.UI;
 using Cosmos.Core.Memory;
-using Mos.Applications;
-using CosmosTTF;
-using Mos.Tools;
+using CreatorOS.Applications;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
+using PrismGraphics.Extentions;
+using CreatorOS.Tools;
 
-namespace Mos
+namespace CreatorOS
 {
     public class Kernel : Sys.Kernel
     {
-        SipaVGA vga;
+        VBECanvas vga;
         Taskbar taskbar;
         public int delta, frames, fps;
         public static uint mousex, mousey;
@@ -68,9 +66,9 @@ namespace Mos
                 Console.WriteLine("Applications Directory does not exist, creating directory");
                 Directory.CreateDirectory(@"0:\Applications");
             }
-            vga = new SipaVGA(new SVGAMode(800, 600));
+            vga = new();
             fps = 0;
-            TTFManager.RegisterFont("Roboto", Data.Roboto_ttf);
+            Fonts.roboto = new PrismGraphics.Fonts.Font(Data.Roboto_ttf, 16);
             taskbar = new Taskbar(vga, 50);
             Sys.MouseManager.ScreenWidth = 800;
             Sys.MouseManager.ScreenHeight = 600;
@@ -83,20 +81,13 @@ namespace Mos
         protected override void Run()
         {
             vga.Clear();
-            vga.DrawFilledRectangle(0, 0, 800, 600, (uint)Color.MakeArgb(255, 150, 40, 40));
+            vga.DrawFilledRectangle(0, 0, 800, 600, 0, Color.FromARGB(255, 150, 40, 40));
             taskbar.Render();
-            TextRenderer.DrawTTFString(6, 6, "FPS: " + fps, vga, "Roboto", System.Drawing.Color.White);
+            vga.DrawString(6, 6, "FPS: " + vga.GetFPS(), Fonts.roboto, Color.White);
             WindowManager.Update();
             mousex = Sys.MouseManager.X;
             mousey = Sys.MouseManager.Y;
-            Alpha.DrawImageAlpha(Data.Cursor, mousex, mousey, (uint)Color.MakeArgb(0, 0, 0, 0), vga);
-            if (delta != Cosmos.HAL.RTC.Second)
-            {
-                delta = Cosmos.HAL.RTC.Second;
-                fps = frames;
-                frames = 0;
-            }
-            frames++;
+            vga.DrawImage((int)mousex, (int)mousey, Data.Cursor);
             vga.Update();
             Heap.Collect();
         }

@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using Cosmos.System;
 using Cosmos.System.Graphics.Fonts;
-using Mos.Tools;
-using SipaaKernelV3.Graphics;
+using CreatorOS.Tools;
+using PrismGraphics.Extentions;
+using PrismGraphics;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     class Window
     {
         public string title;
-        public uint width;
-        public uint height;
-        public uint x = 0;
-        public uint y = 0;
+        public ushort width;
+        public ushort height;
+        public int x = 0;
+        public int y = 0;
         public uint baseX = 0;
         public uint baseY = 0;
         public uint titleBarEnd = 50;
@@ -22,14 +23,14 @@ namespace Mos.UI
         bool pressed;
         bool HasWindowMoving;
         bool lck;
-        public SipaVGA vga;
+        public VBECanvas vga;
         public List<string> lines = new List<string>();
-        public List<System.Drawing.Color> lineColors = new List<System.Drawing.Color>();
+        public List<Color> lineColors = new List<Color>();
         public bool Closed = false;
         public bool Focused = false;
         readonly TextRenderer TextRenderer = new TextRenderer();
         readonly Button ExitButton;
-        public Window(SipaVGA vga, string title, uint width, uint height)
+        public Window(VBECanvas vga, string title, ushort width, ushort height)
         {
             this.title = title;
             this.width = width;
@@ -40,12 +41,12 @@ namespace Mos.UI
         }
         public void Render()
         {
-            vga.DrawFilledRectangle(x, y, width, height, (uint)new Color(64, 64, 64).ToSystemDrawingColor().ToArgb());
-            vga.DrawFilledRectangle(x + width - 70, y, 70, 50, (uint)new Color(178, 34, 34).ToSystemDrawingColor().ToArgb());
+            vga.DrawFilledRectangle(x, y, width, height, 0, Color.FromARGB(255, 64, 64, 64));
+            vga.DrawFilledRectangle(x + width - 70, y, 70, 50, 0, Color.FromARGB(255, 178, 34, 34));
             ExitButton.Render();
-            vga.DrawRectangle(x, y, width, height, 1, (uint)Color.White.ToSystemDrawingColor().ToArgb());
-            vga.DrawHorizontalLine(x, y + titleBarEnd, width, (uint)Color.White.ToSystemDrawingColor().ToArgb());
-            TextRenderer.DrawTTFString(x + 10, y + (titleBarEnd - 30), title, vga, "Roboto", System.Drawing.Color.White);
+            vga.DrawRectangle(x, y, width, height, 1, Color.White);
+            vga.DrawLine(x, (int)(y + titleBarEnd), width, (int)(y + titleBarEnd), Color.White);
+            vga.DrawString(x + 10, (int)(y + (titleBarEnd - 30)), title, Fonts.roboto, Color.White);
             int i = 0;
             int index = 0;
             var builtText = "";
@@ -55,13 +56,13 @@ namespace Mos.UI
                 foreach (char c in line)
                 { 
                     w++;
-                    if (w * 12 + 5 >= width) { 
+                    if (w * 8 + 5 >= width) { 
                         builtText += "\n"; 
                         w = 0;
                     }
                     builtText += c;
                 }
-                int temp = TextRenderer.Draw(x + 10, y + 60, builtText, vga, lineColors[index], i);
+                int temp = TextRenderer.Draw(x + 10, (int)y + 60, builtText, vga, lineColors[index], i);
                 i += temp;
                 index++;
                 builtText = "";
@@ -99,14 +100,14 @@ namespace Mos.UI
                     baseX = (uint)(MouseManager.X - px);
                     baseY = (uint)(MouseManager.Y - py);
 
-                    x = (uint)(MouseManager.X - px + 2);
-                    y = (uint)(MouseManager.Y - py);
+                    x = (int)(MouseManager.X - px + 2);
+                    y = (int)(MouseManager.Y - py);
                 }
                 if (lines.Count * 17 + 70 >= height)
                 {
                     //make the lines scroll up
                     string nl = lines[lines.Count - 1];
-                    System.Drawing.Color nlc = lineColors[lineColors.Count - 1];
+                    Color nlc = lineColors[lineColors.Count - 1];
                     lines.RemoveAt(lines.Count - 1);
                     lineColors.RemoveAt(lineColors.Count - 1);
                     lines.Insert(lineColors.Count, nl);
@@ -132,10 +133,10 @@ namespace Mos.UI
         }
         public virtual void AppStart()
         {
-            WriteLine("Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World", Color.White.ToSystemDrawingColor());
-            WriteLine("This is a test", Color.White.ToSystemDrawingColor());
+            WriteLine("Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World", Color.White);
+            WriteLine("This is a test", Color.White);
         }
-        public void WriteLine(string text, System.Drawing.Color color)
+        public void WriteLine(string text, Color color)
         {
             lines.Add(text);
             lineColors.Add(color);

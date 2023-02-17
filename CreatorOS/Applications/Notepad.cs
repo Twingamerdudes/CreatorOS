@@ -1,13 +1,13 @@
-﻿using Mos.UI;
+﻿using CreatorOS.UI;
 using System;
-using SipaaKernelV3.Graphics;
 using Cosmos.System;
-using Color = System.Drawing.Color;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using PrismGraphics;
+using PrismGraphics.Extentions;
 
-namespace Mos.Applications
+namespace CreatorOS.Applications
 {
     class Notepad : Window
     {
@@ -15,7 +15,7 @@ namespace Mos.Applications
         string input = "";
         List<string> file;
         string filePath;
-        public Notepad(SipaVGA vga, string title, uint width, uint height, string filePath) : base(vga, title, width, height)
+        public Notepad(VBECanvas vga, string title, ushort width, ushort height, string filePath) : base(vga, title, width, height)
         {
             if (File.Exists(filePath))
             {
