@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Cosmos.System;
 using Mos.UI;
 using SipaaKernelV3.Graphics;
@@ -15,6 +16,7 @@ namespace Mos.Applications
         string dir = @"0:";
         string temp = "";
         bool writingText = false;
+        bool programMode = false;
         public Terminal(SipaVGA vga, string title, uint width, uint height) : base(vga, title, width, height)
         {
             
@@ -23,7 +25,7 @@ namespace Mos.Applications
         {
             WriteLine(">", Color.White);
         }
-        public void ReadCommand(string input, bool programMode=false)
+        public void ReadCommand(string input)
         {
             string[] command;
             if (input[0] == '>')
@@ -192,19 +194,17 @@ namespace Mos.Applications
                     {
                         if(File.Exists(@dir + "\\" + @args[0]))
                         {
-                            string[] code = File.ReadAllLines(@dir + "\\" + @args[0]);
+                            List<string> code = File.ReadAllLines(@dir + "\\" + @args[0]).ToList();
                             List<string> programArgs = args;
                             programArgs.Remove(args[0]);
                             CreateLang(code, programArgs);
+                            return;
                         }
                         else
                         {
                             WriteLine("File does not exist!!!", Color.Red);
                         }
                     }
-                    break;
-                case "input":
-                    writingText = true;
                     break;
                 case "notepad":
                     if(InForceArgs(args.Count, 1, 1))
@@ -279,7 +279,7 @@ namespace Mos.Applications
                     WriteLine("Unknown Command!!!", Color.Red);
                     break;
             }
-            if (!programMode)
+            if (!programMode && !writingText)
             {
                 WriteLine(">", Color.White);
             }
@@ -305,7 +305,14 @@ namespace Mos.Applications
                 {
                     writingText = false;
                     temp = lines[index];
-                    WriteLine("", Color.White);
+                    if(programMode == true)
+                    {
+                        WriteLine("", Color.White);
+                    }
+                    else
+                    {
+                        WriteLine(">", Color.White);
+                    }
                 }
                 input = "";
             }
@@ -323,14 +330,23 @@ namespace Mos.Applications
             }
             else
             {
-                WriteLine("Invalid Args!!!", System.Drawing.Color.Red);
+                WriteLine("Invalid Args!!!", Color.Red);
                 return false;
             }
         }
-        void CreateLang(string[] code, List<string> args)
+        void CreateLang(List<string> code, List<string> args)
         {
+            int i = 0;
+            programMode = true;
             foreach (string line in code)
             {
+                if(writingText)
+                {
+                    code.RemoveAll(x => x == "$ignore");
+                    code[i] = "$ignore";
+                    code.Insert(i, line);
+                    continue;
+                }
                 string formattedLine = line.Replace("\t", "");
                 if(formattedLine.Length > 0 ) 
                 {
@@ -338,9 +354,28 @@ namespace Mos.Applications
                     int index = 0;
                     foreach(string token in tokens){
                         if(token[0] == '$'){
-                            int id = int.Parse(token.Substring(1));
-                            if(id <= args.Count){
-                                tokens[index] = args[id];
+                            if (token.Substring(1) == "input")
+                            {
+                                writingText = true;
+                                WriteLine("", Color.White);
+                                tokens[index] = "$ignore";
+                            }
+                            else if(token.Substring(1) == "exit")
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                int id = int.Parse(token.Substring(1));
+                                if (id < args.Count && id >= 0)
+                                {
+                                    tokens[index] = args[id];
+                                }
+                                else
+                                {
+                                    WriteLine("ARG DOES NOT EXIST!!!", Color.Red);
+                                    return;
+                                }
                             }
                         }
                         index++;
@@ -348,11 +383,17 @@ namespace Mos.Applications
                     //put tokens back together
                     string newLine = "";
                     foreach(string token in tokens){
+                        if(token == "$ignore")
+                        {
+                            continue;
+                        }
                         newLine += token + " ";
                     }
-                    ReadCommand(newLine, true);
+                    ReadCommand(newLine);
                 }
+                i++;
             }
+            programMode = false;
         }
     }
 }
