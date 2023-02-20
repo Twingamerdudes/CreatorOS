@@ -15,6 +15,7 @@ namespace Mos.Applications
         string input = "";
         List<string> file;
         string filePath;
+        int cursorPos = 0;
         public Notepad(SipaVGA vga, string title, uint width, uint height, string filePath) : base(vga, title, width, height)
         {
             if (File.Exists(filePath))
@@ -39,8 +40,14 @@ namespace Mos.Applications
                 file = new List<string>();
                 file.Add("");
             }
+            ScrollEnabled = false;
         }
 
+        public override void Render()
+        {
+            base.Render();
+            TextRenderer.DrawTTFString(x + 10, y - 60, "ALT | scripting mode", vga, "Roboto", Color.White);
+        }
         public override void AppStart()
         {
 
@@ -61,7 +68,7 @@ namespace Mos.Applications
         }
         public override void OnKeyPressed(KeyEvent key)
         {
-            if (key.Key == ConsoleKeyEx.Backspace && lines[index].Length > 0)
+            if (key.Key == ConsoleKeyEx.Backspace && lines[index].Length > 1)
             {
                 lines[index] = lines[index].Remove(lines[index].Length - 1);
                 input = input.Substring(0, input.Length - 1);
@@ -86,9 +93,16 @@ namespace Mos.Applications
                 lines[index] = lines[index].Remove(lines[index].Length - 1);
                 index++;
             }
+            else if(key.Key == ConsoleKeyEx.Tab)
+            {
+                lines[index] += "    ";
+                input = lines[index];
+            }
             else if (key.Key == ConsoleKeyEx.Spacebar || !Char.IsWhiteSpace(key.KeyChar) && !Char.IsControl(key.KeyChar) && key.Key != ConsoleKeyEx.LWin)
             {
-                lines[index] += key.KeyChar;
+                //lines[index] += key.KeyChar;
+                lines[index].Insert(cursorPos, input);
+                cursorPos++;
             }
             input = lines[index];
         }
@@ -103,9 +117,18 @@ namespace Mos.Applications
             string builtText = "";
             foreach(string line in lines)
             {
-                builtText += line + "\n";
+                if(line != "")
+                {
+                    builtText += line + "\n";
+                }
             }
             File.WriteAllText(filePath, builtText);
+        }
+        public override void OnScroll()
+        {
+            index--;
+            file.RemoveAt(file.Count - 1);
+            input = lines[index];
         }
     }
 }

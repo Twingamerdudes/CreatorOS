@@ -27,7 +27,8 @@ namespace Mos.UI
         public List<System.Drawing.Color> lineColors = new List<System.Drawing.Color>();
         public bool Closed = false;
         public bool Focused = false;
-        readonly TextRenderer TextRenderer = new TextRenderer();
+        public bool ScrollEnabled = true;
+        public readonly TextRenderer TextRenderer = new TextRenderer();
         readonly Button ExitButton;
         public Window(SipaVGA vga, string title, uint width, uint height)
         {
@@ -38,7 +39,7 @@ namespace Mos.UI
             this.ExitButton = new Button(vga, "X", x + width - 70, y, 70, 50, Close);
             AppStart();
         }
-        public void Render()
+        public virtual void Render()
         {
             vga.DrawFilledRectangle(x, y, width, height, (uint)new Color(64, 64, 64).ToSystemDrawingColor().ToArgb());
             vga.DrawFilledRectangle(x + width - 70, y, 70, 50, (uint)new Color(178, 34, 34).ToSystemDrawingColor().ToArgb());
@@ -55,7 +56,7 @@ namespace Mos.UI
                 foreach (char c in line)
                 { 
                     w++;
-                    if (w * 12 + 5 >= width) { 
+                    if (w * 8 + 5 >= width) { 
                         builtText += "\n"; 
                         w = 0;
                     }
@@ -104,18 +105,26 @@ namespace Mos.UI
                 }
                 if (lines.Count * 17 + 70 >= height)
                 {
-                    //make the lines scroll up
-                    string nl = lines[lines.Count - 1];
-                    System.Drawing.Color nlc = lineColors[lineColors.Count - 1];
-                    lines.RemoveAt(lines.Count - 1);
-                    lineColors.RemoveAt(lineColors.Count - 1);
-                    lines.Insert(lineColors.Count, nl);
-                    lineColors.Insert(lineColors.Count, nlc);
-                    foreach(string line in nl.Split(' '))
+                    if (ScrollEnabled)
                     {
-                        lines.RemoveAt(0);
-                        lineColors.RemoveAt(0);
+                        //make the lines scroll up
+                        string nl = lines[lines.Count - 1];
+                        System.Drawing.Color nlc = lineColors[lineColors.Count - 1];
+                        lines.RemoveAt(lines.Count - 1);
+                        lineColors.RemoveAt(lineColors.Count - 1);
+                        lines.Insert(lineColors.Count, nl);
+                        lineColors.Insert(lineColors.Count, nlc);
+                        foreach (string line in nl.Split(' '))
+                        {
+                            lines.RemoveAt(0);
+                            lineColors.RemoveAt(0);
+                        }
                     }
+                    else
+                    {
+                        lines.RemoveAt(lines.Count - 1);
+                    }
+                    OnScroll();
                 }
                 Render();
                 if (Focused)
@@ -164,6 +173,10 @@ namespace Mos.UI
         public bool CheckIfMouseIsInBounds()
         {
             return MouseManager.X > baseX && MouseManager.X < baseX + width && MouseManager.Y > baseY && MouseManager.Y < baseY + height;
+        }
+        public virtual void OnScroll()
+        {
+
         }
     }
 }

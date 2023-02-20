@@ -23,12 +23,12 @@ namespace Mos.UI
         public void AddButton(Button button)
         {
             Button newButton = new Button(vga, button.text, button.height, button.callback);
-            uint x = 0;
+            uint x = startMenu.width;
             foreach (Button b in taskbarButtons)
             {
                 x += b.width;
             }
-            newButton.x = x + (newButton.width / 2);
+            newButton.x = x;
             newButton.y = 600 - newButton.height;
             taskbarButtons.Add(newButton);
         }

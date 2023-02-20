@@ -8,8 +8,8 @@ using CosmosTTF;
 using Mos.Tools;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
+using Cosmos.System.Coroutines;
+using System.Collections.Generic;
 
 namespace Mos
 {
@@ -78,27 +78,40 @@ namespace Mos
             taskbar.AddButton(terminal);
             Button notepad = new(vga, "Notepad", 50, NewNotepadWindow);
             taskbar.AddButton(notepad);
+            var main = new Coroutine(Main());
+            main.Start();
+            CoroutinePool.Main.StartPool();
         }
 
         protected override void Run()
         {
-            vga.Clear();
-            vga.DrawFilledRectangle(0, 0, 800, 600, (uint)Color.MakeArgb(255, 150, 40, 40));
-            taskbar.Render();
-            TextRenderer.DrawTTFString(6, 6, "FPS: " + fps, vga, "Roboto", System.Drawing.Color.White);
-            WindowManager.Update();
-            mousex = Sys.MouseManager.X;
-            mousey = Sys.MouseManager.Y;
-            Alpha.DrawImageAlpha(Data.Cursor, mousex, mousey, (uint)Color.MakeArgb(0, 0, 0, 0), vga);
-            if (delta != Cosmos.HAL.RTC.Second)
-            {
-                delta = Cosmos.HAL.RTC.Second;
-                fps = frames;
-                frames = 0;
-            }
-            frames++;
-            vga.Update();
-            Heap.Collect();
+
         }
+
+        protected IEnumerator<CoroutineControlPoint> Main()
+        {
+            while (true)
+            {
+                vga.Clear();
+                vga.DrawFilledRectangle(0, 0, 800, 600, (uint)Color.MakeArgb(255, 150, 40, 40));
+                taskbar.Render();
+                TextRenderer.DrawTTFString(6, 6, "FPS: " + fps, vga, "Roboto", System.Drawing.Color.White);
+                WindowManager.Update();
+                mousex = Sys.MouseManager.X;
+                mousey = Sys.MouseManager.Y;
+                Alpha.DrawImageAlpha(Data.Cursor, mousex, mousey, (uint)Color.MakeArgb(0, 0, 0, 0), vga);
+                if (delta != Cosmos.HAL.RTC.Second)
+                {
+                    delta = Cosmos.HAL.RTC.Second;
+                    fps = frames;
+                    frames = 0;
+                }
+                frames++;
+                vga.Update();
+                Heap.Collect();
+                yield return null;
+            }
+        }
+
     }
 }
