@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     static class WindowManager
     {

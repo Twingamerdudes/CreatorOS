@@ -1,8 +1,10 @@
 ﻿using Cosmos.System.Graphics;
 using IL2CPU.API.Attribs;
+using PrismGraphics;
 using System;
+using Image = PrismGraphics.Image;
 
-namespace Mos.Assets
+namespace CreatorOS.Assets
 {
     public class Data
     {
@@ -14,6 +16,6 @@ namespace Mos.Assets
         public static byte[] Roboto_ttf;
 
         public static Bitmap Background1 = new Bitmap(Background1Raw);
-        public static Bitmap Cursor = new Bitmap(CursorRaw);
+        public static Image Cursor = Image.FromBitmap(CursorRaw);
     }
 }
