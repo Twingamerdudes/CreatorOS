@@ -15,7 +15,6 @@ namespace Mos.Applications
         string input = "";
         List<string> file;
         string filePath;
-        int cursorPos = 0;
         public Notepad(SipaVGA vga, string title, uint width, uint height, string filePath) : base(vga, title, width, height)
         {
             if (File.Exists(filePath))
@@ -46,7 +45,6 @@ namespace Mos.Applications
         public override void Render()
         {
             base.Render();
-            TextRenderer.DrawTTFString(x + 10, y - 60, "ALT | scripting mode", vga, "Roboto", Color.White);
         }
         public override void AppStart()
         {
@@ -68,11 +66,23 @@ namespace Mos.Applications
         }
         public override void OnKeyPressed(KeyEvent key)
         {
-            if (key.Key == ConsoleKeyEx.Backspace && lines[index].Length > 1)
+            if (key.Key == ConsoleKeyEx.Backspace)
             {
-                lines[index] = lines[index].Remove(lines[index].Length - 1);
-                input = input.Substring(0, input.Length - 1);
-                lines[index] = input;
+                if (lines[index].Length > 1)
+                {
+                    lines[index] = lines[index].Remove(lines[index].Length - 1);
+                    input = input.Substring(0, input.Length - 1);
+                    lines[index] = input;
+                }
+                else
+                {
+                    if (index > 0)
+                    {
+                        lines.Remove(lines[index]);
+                        index--;
+                        input = lines[index];
+                    }
+                }
             }
             else if (key.Key == ConsoleKeyEx.Enter)
             {
@@ -83,26 +93,24 @@ namespace Mos.Applications
                 index++;
                 input = "";
             }
-            else if(key.Key == ConsoleKeyEx.UpArrow && index > 0)
+            else if (key.Key == ConsoleKeyEx.UpArrow && index > 0)
             {
                 lines[index] = lines[index].Remove(lines[index].Length - 1);
                 index--;
             }
-            else if(key.Key == ConsoleKeyEx.DownArrow && index < lines.Count - 1)
+            else if (key.Key == ConsoleKeyEx.DownArrow && index < lines.Count - 1)
             {
                 lines[index] = lines[index].Remove(lines[index].Length - 1);
                 index++;
             }
-            else if(key.Key == ConsoleKeyEx.Tab)
+            else if (key.Key == ConsoleKeyEx.Tab)
             {
                 lines[index] += "    ";
                 input = lines[index];
             }
             else if (key.Key == ConsoleKeyEx.Spacebar || !Char.IsWhiteSpace(key.KeyChar) && !Char.IsControl(key.KeyChar) && key.Key != ConsoleKeyEx.LWin)
             {
-                //lines[index] += key.KeyChar;
-                lines[index].Insert(cursorPos, input);
-                cursorPos++;
+                lines[index] += key.KeyChar;
             }
             input = lines[index];
         }

@@ -50,7 +50,10 @@ namespace Mos.UI
                 }
                 window.Update();
             }
-            temp.Update();
+            if(temp != null)
+            {
+                temp.Update();
+            }
             for(int i = windows.Count - 1; i >= 0; i--)
             {
                 if(MouseManager.MouseState == MouseState.Left && windows[i].CheckIfMouseIsInBounds() && !windows[i].Closed)

@@ -28,6 +28,7 @@ namespace Mos.UI
         public bool Closed = false;
         public bool Focused = false;
         public bool ScrollEnabled = true;
+        public Dictionary<string, System.Drawing.Color> colorCode = new Dictionary<string, System.Drawing.Color>();
         public readonly TextRenderer TextRenderer = new TextRenderer();
         readonly Button ExitButton;
         public Window(SipaVGA vga, string title, uint width, uint height)

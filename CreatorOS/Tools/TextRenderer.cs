@@ -9,7 +9,7 @@ namespace Mos.Tools
     public class TextRenderer
     {
         Dictionary<string, GlyphResult> glyphCacheLUT = new Dictionary<string, GlyphResult>();
-        public int Draw(uint x, uint y, string text, SipaVGA vga, System.Drawing.Color color, int yoffest=0)
+        public int Draw(uint x, uint y, string text, SipaVGA vga, System.Drawing.Color color, int yoffest=0, Dictionary<string, System.Drawing.Color> colorCode=null, string importantKeyword=null)
         {
             if(text.Length < 0 || text == null) return 0;
             string[] lines = text.Split("\n");
@@ -17,7 +17,36 @@ namespace Mos.Tools
             int index = 0;
             foreach (string line in lines)
             {
-                DrawTTFString(x, y + (uint)(i * 17), line, vga, "Roboto", color);
+                if(colorCode == null)
+                {
+                    DrawTTFString(x, y + (uint)(i * 17), line, vga, "Roboto", color);
+                }
+                else
+                {
+                    string[] formmatedLine = line.Split(" ");
+                    foreach(string token in formmatedLine)
+                    {
+                        if (colorCode.ContainsKey(token))
+                        {
+                            DrawTTFString(x, y + (uint)(i * 17), token, vga, "Roboto", colorCode[token]);
+                        }
+                        else if (importantKeyword != null)
+                        {
+                            if (token.Contains(importantKeyword))
+                            {
+                                DrawTTFString(x, y + (uint)(i * 17), token, vga, "Roboto", colorCode[importantKeyword]);
+                            }
+                            else
+                            {
+                                DrawTTFString(x, y + (uint)(i * 17), token, vga, "Roboto", color);
+                            }
+                        }
+                        else
+                        {
+                            DrawTTFString(x, y + (uint)(i * 17), token, vga, "Roboto", color);
+                        }
+                    }
+                }
                 i++;
                 index++;
             }
