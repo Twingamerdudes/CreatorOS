@@ -1,20 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cosmos.System;
 using Cosmos.System.Graphics.Fonts;
-using CreatorOS.Tools;
-using PrismGraphics.Extentions;
-using PrismGraphics;
+using Mos.Tools;
+using SipaaKernelV3.Graphics;
 
-namespace CreatorOS.UI
+namespace Mos.UI
 {
     class Window
     {
         public string title;
-        public ushort width;
-        public ushort height;
-        public int x = 0;
-        public int y = 0;
+        public uint width;
+        public uint height;
+        public uint x = 0;
+        public uint y = 0;
         public uint baseX = 0;
         public uint baseY = 0;
         public uint titleBarEnd = 50;
@@ -23,14 +22,16 @@ namespace CreatorOS.UI
         bool pressed;
         bool HasWindowMoving;
         bool lck;
-        public VBECanvas vga;
+        public SipaVGA vga;
         public List<string> lines = new List<string>();
-        public List<Color> lineColors = new List<Color>();
+        public List<System.Drawing.Color> lineColors = new List<System.Drawing.Color>();
         public bool Closed = false;
         public bool Focused = false;
-        readonly TextRenderer TextRenderer = new TextRenderer();
+        public bool ScrollEnabled = true;
+        public Dictionary<string, System.Drawing.Color> colorCode = new Dictionary<string, System.Drawing.Color>();
+        public readonly TextRenderer TextRenderer = new TextRenderer();
         readonly Button ExitButton;
-        public Window(VBECanvas vga, string title, ushort width, ushort height)
+        public Window(SipaVGA vga, string title, uint width, uint height)
         {
             this.title = title;
             this.width = width;
@@ -39,14 +40,14 @@ namespace CreatorOS.UI
             this.ExitButton = new Button(vga, "X", x + width - 70, y, 70, 50, Close);
             AppStart();
         }
-        public void Render()
+        public virtual void Render()
         {
-            vga.DrawFilledRectangle(x, y, width, height, 0, Color.FromARGB(255, 64, 64, 64));
-            vga.DrawFilledRectangle(x + width - 70, y, 70, 50, 0, Color.FromARGB(255, 178, 34, 34));
+            vga.DrawFilledRectangle(x, y, width, height, (uint)new Color(64, 64, 64).ToSystemDrawingColor().ToArgb());
+            vga.DrawFilledRectangle(x + width - 70, y, 70, 50, (uint)new Color(178, 34, 34).ToSystemDrawingColor().ToArgb());
             ExitButton.Render();
-            vga.DrawRectangle(x, y, width, height, 1, Color.White);
-            vga.DrawLine(x, (int)(y + titleBarEnd), width, (int)(y + titleBarEnd), Color.White);
-            vga.DrawString(x + 10, (int)(y + (titleBarEnd - 30)), title, Fonts.roboto, Color.White);
+            vga.DrawRectangle(x, y, width, height, 1, (uint)Color.White.ToSystemDrawingColor().ToArgb());
+            vga.DrawHorizontalLine(x, y + titleBarEnd, width, (uint)Color.White.ToSystemDrawingColor().ToArgb());
+            TextRenderer.DrawTTFString(x + 10, y + (titleBarEnd - 30), title, vga, "Roboto", System.Drawing.Color.White);
             int i = 0;
             int index = 0;
             var builtText = "";
@@ -62,7 +63,7 @@ namespace CreatorOS.UI
                     }
                     builtText += c;
                 }
-                int temp = TextRenderer.Draw(x + 10, (int)y + 60, builtText, vga, lineColors[index], i);
+                int temp = TextRenderer.Draw(x + 10, y + 60, builtText, vga, lineColors[index], i);
                 i += temp;
                 index++;
                 builtText = "";
@@ -100,23 +101,31 @@ namespace CreatorOS.UI
                     baseX = (uint)(MouseManager.X - px);
                     baseY = (uint)(MouseManager.Y - py);
 
-                    x = (int)(MouseManager.X - px + 2);
-                    y = (int)(MouseManager.Y - py);
+                    x = (uint)(MouseManager.X - px + 2);
+                    y = (uint)(MouseManager.Y - py);
                 }
                 if (lines.Count * 17 + 70 >= height)
                 {
-                    //make the lines scroll up
-                    string nl = lines[lines.Count - 1];
-                    Color nlc = lineColors[lineColors.Count - 1];
-                    lines.RemoveAt(lines.Count - 1);
-                    lineColors.RemoveAt(lineColors.Count - 1);
-                    lines.Insert(lineColors.Count, nl);
-                    lineColors.Insert(lineColors.Count, nlc);
-                    foreach(string line in nl.Split(' '))
+                    if (ScrollEnabled)
                     {
-                        lines.RemoveAt(0);
-                        lineColors.RemoveAt(0);
+                        //make the lines scroll up
+                        string nl = lines[lines.Count - 1];
+                        System.Drawing.Color nlc = lineColors[lineColors.Count - 1];
+                        lines.RemoveAt(lines.Count - 1);
+                        lineColors.RemoveAt(lineColors.Count - 1);
+                        lines.Insert(lineColors.Count, nl);
+                        lineColors.Insert(lineColors.Count, nlc);
+                        foreach (string line in nl.Split(' '))
+                        {
+                            lines.RemoveAt(0);
+                            lineColors.RemoveAt(0);
+                        }
                     }
+                    else
+                    {
+                        lines.RemoveAt(lines.Count - 1);
+                    }
+                    OnScroll();
                 }
                 Render();
                 if (Focused)
@@ -133,10 +142,10 @@ namespace CreatorOS.UI
         }
         public virtual void AppStart()
         {
-            WriteLine("Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World", Color.White);
-            WriteLine("This is a test", Color.White);
+            WriteLine("Hello World Hello World Hello World Hello World Hello World Hello World Hello World Hello World", Color.White.ToSystemDrawingColor());
+            WriteLine("This is a test", Color.White.ToSystemDrawingColor());
         }
-        public void WriteLine(string text, Color color)
+        public void WriteLine(string text, System.Drawing.Color color)
         {
             lines.Add(text);
             lineColors.Add(color);
@@ -165,6 +174,10 @@ namespace CreatorOS.UI
         public bool CheckIfMouseIsInBounds()
         {
             return MouseManager.X > baseX && MouseManager.X < baseX + width && MouseManager.Y > baseY && MouseManager.Y < baseY + height;
+        }
+        public virtual void OnScroll()
+        {
+
         }
     }
 }

@@ -1,19 +1,21 @@
-﻿using Sys = Cosmos.System;
-using PrismGraphics;
-using CreatorOS.Assets;
-using CreatorOS.UI;
+using Sys = Cosmos.System;
+using SipaaKernelV3.Graphics;
+using Mos.Assets;
+using Mos.UI;
 using Cosmos.Core.Memory;
-using CreatorOS.Applications;
+using Mos.Applications;
+using CosmosTTF;
+using Mos.Tools;
 using System;
 using System.IO;
-using PrismGraphics.Extentions;
-using CreatorOS.Tools;
+using Cosmos.System.Coroutines;
+using System.Collections.Generic;
 
-namespace CreatorOS
+namespace Mos
 {
     public class Kernel : Sys.Kernel
     {
-        VBECanvas vga;
+        SipaVGA vga;
         Taskbar taskbar;
         public int delta, frames, fps;
         public static uint mousex, mousey;
@@ -66,9 +68,9 @@ namespace CreatorOS
                 Console.WriteLine("Applications Directory does not exist, creating directory");
                 Directory.CreateDirectory(@"0:\Applications");
             }
-            vga = new();
+            vga = new SipaVGA(new SVGAMode(800, 600));
             fps = 0;
-            Fonts.roboto = new PrismGraphics.Fonts.Font(Data.Roboto_ttf, 16);
+            TTFManager.RegisterFont("Roboto", Data.Roboto_ttf);
             taskbar = new Taskbar(vga, 50);
             Sys.MouseManager.ScreenWidth = 800;
             Sys.MouseManager.ScreenHeight = 600;
@@ -76,20 +78,40 @@ namespace CreatorOS
             taskbar.AddButton(terminal);
             Button notepad = new(vga, "Notepad", 50, NewNotepadWindow);
             taskbar.AddButton(notepad);
+            var main = new Coroutine(Main());
+            main.Start();
+            CoroutinePool.Main.StartPool();
         }
 
         protected override void Run()
         {
-            vga.Clear();
-            vga.DrawFilledRectangle(0, 0, 800, 600, 0, Color.FromARGB(255, 150, 40, 40));
-            taskbar.Render();
-            vga.DrawString(6, 6, "FPS: " + vga.GetFPS(), Fonts.roboto, Color.White);
-            WindowManager.Update();
-            mousex = Sys.MouseManager.X;
-            mousey = Sys.MouseManager.Y;
-            vga.DrawImage((int)mousex, (int)mousey, Data.Cursor);
-            vga.Update();
-            Heap.Collect();
+
         }
+
+        protected IEnumerator<CoroutineControlPoint> Main()
+        {
+            while (true)
+            {
+                vga.Clear();
+                vga.DrawFilledRectangle(0, 0, 800, 600, (uint)Color.MakeArgb(255, 150, 40, 40));
+                taskbar.Render();
+                TextRenderer.DrawTTFString(6, 6, "FPS: " + fps, vga, "Roboto", System.Drawing.Color.White);
+                WindowManager.Update();
+                mousex = Sys.MouseManager.X;
+                mousey = Sys.MouseManager.Y;
+                Alpha.DrawImageAlpha(Data.Cursor, mousex, mousey, (uint)Color.MakeArgb(0, 0, 0, 0), vga);
+                if (delta != Cosmos.HAL.RTC.Second)
+                {
+                    delta = Cosmos.HAL.RTC.Second;
+                    fps = frames;
+                    frames = 0;
+                }
+                frames++;
+                vga.Update();
+                Heap.Collect();
+                yield return null;
+            }
+        }
+
     }
 }

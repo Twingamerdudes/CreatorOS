@@ -39,8 +39,13 @@ namespace CreatorOS.Applications
                 file = new List<string>();
                 file.Add("");
             }
+            ScrollEnabled = false;
         }
 
+        public override void Render()
+        {
+            base.Render();
+        }
         public override void AppStart()
         {
 
@@ -61,11 +66,23 @@ namespace CreatorOS.Applications
         }
         public override void OnKeyPressed(KeyEvent key)
         {
-            if (key.Key == ConsoleKeyEx.Backspace && lines[index].Length > 0)
+            if (key.Key == ConsoleKeyEx.Backspace)
             {
-                lines[index] = lines[index].Remove(lines[index].Length - 1);
-                input = input.Substring(0, input.Length - 1);
-                lines[index] = input;
+                if (lines[index].Length > 1)
+                {
+                    lines[index] = lines[index].Remove(lines[index].Length - 1);
+                    input = input.Substring(0, input.Length - 1);
+                    lines[index] = input;
+                }
+                else
+                {
+                    if (index > 0)
+                    {
+                        lines.Remove(lines[index]);
+                        index--;
+                        input = lines[index];
+                    }
+                }
             }
             else if (key.Key == ConsoleKeyEx.Enter)
             {
@@ -76,15 +93,20 @@ namespace CreatorOS.Applications
                 index++;
                 input = "";
             }
-            else if(key.Key == ConsoleKeyEx.UpArrow && index > 0)
+            else if (key.Key == ConsoleKeyEx.UpArrow && index > 0)
             {
                 lines[index] = lines[index].Remove(lines[index].Length - 1);
                 index--;
             }
-            else if(key.Key == ConsoleKeyEx.DownArrow && index < lines.Count - 1)
+            else if (key.Key == ConsoleKeyEx.DownArrow && index < lines.Count - 1)
             {
                 lines[index] = lines[index].Remove(lines[index].Length - 1);
                 index++;
+            }
+            else if (key.Key == ConsoleKeyEx.Tab)
+            {
+                lines[index] += "    ";
+                input = lines[index];
             }
             else if (key.Key == ConsoleKeyEx.Spacebar || !Char.IsWhiteSpace(key.KeyChar) && !Char.IsControl(key.KeyChar) && key.Key != ConsoleKeyEx.LWin)
             {
@@ -103,9 +125,18 @@ namespace CreatorOS.Applications
             string builtText = "";
             foreach(string line in lines)
             {
-                builtText += line + "\n";
+                if(line != "")
+                {
+                    builtText += line + "\n";
+                }
             }
             File.WriteAllText(filePath, builtText);
+        }
+        public override void OnScroll()
+        {
+            index--;
+            file.RemoveAt(file.Count - 1);
+            input = lines[index];
         }
     }
 }

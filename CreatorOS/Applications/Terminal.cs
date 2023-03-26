@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Cosmos.System;
-using CreatorOS.UI;
-using PrismGraphics;
-using PrismGraphics.Extentions;
+using Cosmos.System.Coroutines;
+using Mos.UI;
+using SipaaKernelV3.Graphics;
+using Color = System.Drawing.Color;
 
-namespace CreatorOS.Applications
+namespace Mos.Applications
 {
     class Terminal : Window
     {
@@ -15,7 +17,8 @@ namespace CreatorOS.Applications
         string dir = @"0:";
         string temp = "";
         bool writingText = false;
-        public Terminal(VBECanvas vga, string title, ushort width, ushort height) : base(vga, title, width, height)
+        bool programMode = false;
+        public Terminal(SipaVGA vga, string title, uint width, uint height) : base(vga, title, width, height)
         {
             
         }
@@ -23,7 +26,7 @@ namespace CreatorOS.Applications
         {
             WriteLine(">", Color.White);
         }
-        public void ReadCommand(string input, bool programMode=false)
+        public void ReadCommand(string input)
         {
             string[] command;
             if (input[0] == '>')
@@ -105,7 +108,7 @@ namespace CreatorOS.Applications
                         var directories = Directory.GetDirectories(dir);
                         foreach(string directory in directories)
                         {
-                            WriteLine(directory, Color.GoogleBlue);
+                            WriteLine(directory, Color.LightBlue);
                         }
                         foreach(var file in files)
                         {
@@ -192,19 +195,18 @@ namespace CreatorOS.Applications
                     {
                         if(File.Exists(@dir + "\\" + @args[0]))
                         {
-                            string[] code = File.ReadAllLines(@dir + "\\" + @args[0]);
+                            List<string> code = File.ReadAllLines(@dir + "\\" + @args[0]).ToList();
                             List<string> programArgs = args;
                             programArgs.Remove(args[0]);
-                            CreateLang(code, programArgs);
+                            var lang = new Coroutine(CreateLang(code, programArgs));
+                            lang.Start();
+                            return;
                         }
                         else
                         {
                             WriteLine("File does not exist!!!", Color.Red);
                         }
                     }
-                    break;
-                case "input":
-                    writingText = true;
                     break;
                 case "notepad":
                     if(InForceArgs(args.Count, 1, 1))
@@ -279,7 +281,7 @@ namespace CreatorOS.Applications
                     WriteLine("Unknown Command!!!", Color.Red);
                     break;
             }
-            if (!programMode)
+            if (!programMode && !writingText)
             {
                 WriteLine(">", Color.White);
             }
@@ -305,7 +307,6 @@ namespace CreatorOS.Applications
                 {
                     writingText = false;
                     temp = lines[index];
-                    WriteLine("", Color.White);
                 }
                 input = "";
             }
@@ -327,36 +328,119 @@ namespace CreatorOS.Applications
                 return false;
             }
         }
-        void CreateLang(string[] code, List<string> args)
+        IEnumerator<CoroutineControlPoint> CreateLang(List<string> code, List<string> args)
         {
-            foreach (string line in code)
+            int i = 0;
+            programMode = true;
+            Dictionary<string, string> variables = new Dictionary<string, string>();
+            while (true)
             {
-                string formattedLine = line.Replace("\t", "");
-                if(formattedLine.Length > 0 ) 
+                yield return new WaitUntil(() => !writingText);
+                if(i >= code.Count)
+                {
+                    break;
+                }
+                string formattedLine = code[i].Replace("\t", "");
+                if (formattedLine.Length > 0)
                 {
                     string[] tokens = formattedLine.Split(' ');
                     int index = 0;
-                    foreach(string token in tokens){
-                        if(token[0] == '$'){
-                            int id = int.Parse(token.Substring(1));
-                            if(id <= args.Count){
-                                tokens[index] = args[id];
+                    bool makingVariable = false;
+                    string varName = "";
+                    int varStep = 0;
+                    foreach (string token in tokens)
+                    {
+                        if (token[0] == '$')
+                        {
+                            if (token[1] == '$')
+                            {
+                                string variable = token.Substring(2);
+                                if (variables.ContainsKey(variable))
+                                {
+                                    tokens[index] = variables[variable];
+                                }
+                                else
+                                {
+                                    WriteLine("VARIABLE " + variable + " DOES NOT EXIST!!!", Color.Red);
+                                    tokens[index] = "NaN";
+                                }
+                                index++;
+                                continue;
+                            }
+                            if (token.Substring(1) == "input")
+                            {
+                                writingText = true;
+                                WriteLine("", Color.White);
+                                tokens[index] = "$ignore";
+                            }
+                            else if (token.Substring(1) == "temp")
+                            {
+                                tokens[index] = temp;
+                            }
+                            else if(token.Substring(1) == "var")
+                            {
+                                makingVariable = true;
+                                tokens[index] = "$ignore";
+                                index++;
+                                continue;
+                            }
+                            else
+                            {
+                                int id = int.Parse(token.Substring(1));
+                                if (id < args.Count && id >= 0)
+                                {
+                                    tokens[index] = args[id];
+                                }
+                                else
+                                {
+                                    WriteLine("ARG DOES NOT EXIST!!!", Color.Red);
+                                }
                             }
                         }
-                        if(token == "temp")
+                        if (makingVariable)
                         {
-                            tokens[index] = temp;
+                            varStep++;
+                            if(varStep == 1)
+                            {
+                                varName = token.Trim();
+                            }
+                            else if (varStep == 2)
+                            {
+                                if(token != "=")
+                                {
+                                    WriteLine("INVALID VARIABLE, DECLARATION MISSING EQAULS SIGN!!!!", Color.Red);
+                                }
+                            }
+                            else
+                            {
+                                variables[varName] = tokens[index];
+                                makingVariable = false;
+                                varStep = 0;
+                            }
+                            tokens[index] = "$ignore";
                         }
                         index++;
                     }
                     //put tokens back together
                     string newLine = "";
-                    foreach(string token in tokens){
+                    foreach (string token in tokens)
+                    {
+                        if (token == "$ignore")
+                        {
+                            continue;
+                        }
                         newLine += token + " ";
                     }
-                    ReadCommand(newLine, true);
+                    if (newLine != "")
+                    {
+                        ReadCommand(newLine);
+                    }
                 }
+                i++;
+                yield return null;
             }
+            programMode = false;
+            WriteLine(">", Color.White);
         }
     }
 }
