@@ -18,10 +18,10 @@ Key code:
 | Applications | ✔️ |
 | File System | ✔️ |
 | Programming langauge | 🟨 |
-| Real Hardware | ❔|
+| Real Hardware | ✖️|
 | Executables | ✖️|
 | TTF Rendering | ✔️ |
-| Setup | 🟨|
+| Setup | ✔️|
 
 
 #Running the OS
