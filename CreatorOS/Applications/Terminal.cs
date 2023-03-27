@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Cosmos.System;
 using Cosmos.System.Coroutines;
+using CreatorOS.Tools;
 using Mos.UI;
 using SipaaKernelV3.Graphics;
 using Color = System.Drawing.Color;
@@ -275,6 +276,36 @@ namespace Mos.Applications
                         WriteLine("ls - Shows all of the files in a directory", Color.White);
                         WriteLine("info - shows some info about the OS", Color.White);
                         WriteLine("echo [string] - prints a string to the screen", Color.White);
+                    }
+                    break;
+                case "compile":
+                    if(InForceArgs(args.Count, 1, 2))
+                    {
+                        if(File.Exists(@dir + "\\" + @args[0]))
+                        {
+                            string[] lines = File.ReadAllLines(@dir + "\\" + @args[0]);
+                            List<string> code = new List<string>();
+                            foreach(string line in lines)
+                            {
+                                code.Add(line);
+                            }
+                            string compiliedCode = Compile.CompileCode(code);
+                            if(args.Count == 2)
+                            {
+                                if(File.Exists(@dir + "\\" + @args[1] + ".hr"))
+                                {
+                                    File.WriteAllLines(@dir + "\\" + @args[1] + ".hr", compiliedCode.Split("\n"));
+                                }
+                            }
+                            else
+                            {
+                                File.WriteAllLines(@dir + "\\" + @args[0] + ".hr", compiliedCode.Split("\n"));
+                            }
+                        }
+                        else
+                        {
+                            WriteLine("File does not exist!!!", Color.Red);
+                        }
                     }
                     break;
                 default:
