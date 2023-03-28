@@ -2,7 +2,7 @@
 using SipaaKernelV3.Graphics;
 using Color = System.Drawing.Color;
 
-namespace Mos.Tools
+namespace CreatorOS.Tools
 {
     static class Alpha
     {

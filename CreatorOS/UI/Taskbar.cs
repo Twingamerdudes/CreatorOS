@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SipaaKernelV3.Graphics;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     class Taskbar
     {

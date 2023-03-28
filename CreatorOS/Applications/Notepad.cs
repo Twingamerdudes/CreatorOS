@@ -1,4 +1,4 @@
-using Mos.UI;
+using CreatorOS.UI;
 using System;
 using SipaaKernelV3.Graphics;
 using Cosmos.System;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Mos.Applications
+namespace CreatorOS.Applications
 {
     class Notepad : Window
     {

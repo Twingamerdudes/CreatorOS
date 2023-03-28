@@ -46,6 +46,12 @@
       <Reference Include="CosmosTTF">
         <HintPath>..\CosmosTTF.dll</HintPath>
       </Reference>
+      <Reference Include="PrismNetwork">
+        <HintPath>..\PrismNetwork.dll</HintPath>
+      </Reference>
+      <Reference Include="PrismTools">
+        <HintPath>..\PrismTools.dll</HintPath>
+      </Reference>
       <Reference Include="SipaaKernelV3.Graphics">
         <HintPath>..\SipaaKernelV3.Graphics.dll</HintPath>
       </Reference>

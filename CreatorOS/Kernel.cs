@@ -1,17 +1,19 @@
 ﻿using Sys = Cosmos.System;
 using SipaaKernelV3.Graphics;
-using Mos.Assets;
-using Mos.UI;
+using CreatorOS.Assets;
+using CreatorOS.UI;
 using Cosmos.Core.Memory;
-using Mos.Applications;
+using CreatorOS.Applications;
 using CosmosTTF;
-using Mos.Tools;
+using CreatorOS.Tools;
 using System;
 using System.IO;
 using Cosmos.System.Coroutines;
 using System.Collections.Generic;
+using PrismNetwork;
+using Cosmos.System.Network.Config;
 
-namespace Mos
+namespace CreatorOS
 {
     public class Kernel : Sys.Kernel
     {
@@ -68,6 +70,7 @@ namespace Mos
                 Console.WriteLine("Applications Directory does not exist, creating directory");
                 Directory.CreateDirectory(@"0:\Applications");
             }
+            NetworkManager.Init();
             vga = new SipaVGA(new SVGAMode(800, 600));
             fps = 0;
             TTFManager.RegisterFont("Roboto", Data.Roboto_ttf);

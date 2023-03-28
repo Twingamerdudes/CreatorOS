@@ -2,9 +2,9 @@ using Cosmos.System.Graphics.Fonts;
 using SipaaKernelV3.Graphics;
 using Cosmos.System;
 using System;
-using Mos.Tools;
+using CreatorOS.Tools;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     public class Button
     {

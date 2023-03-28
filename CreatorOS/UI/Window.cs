@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using Cosmos.System;
 using Cosmos.System.Graphics.Fonts;
-using Mos.Tools;
+using CreatorOS.Tools;
 using SipaaKernelV3.Graphics;
 
-namespace Mos.UI
+namespace CreatorOS.UI
 {
     class Window
     {
         public string title;
         public uint width;
         public uint height;
+        public uint lastX = 0;
+        public uint lastY = 0;
         public uint x = 0;
         public uint y = 0;
         public uint baseX = 0;

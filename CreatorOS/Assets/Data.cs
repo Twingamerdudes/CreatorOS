@@ -2,7 +2,7 @@ using Cosmos.System.Graphics;
 using IL2CPU.API.Attribs;
 using System;
 
-namespace Mos.Assets
+namespace CreatorOS.Assets
 {
     public class Data
     {

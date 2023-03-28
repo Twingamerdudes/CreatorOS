@@ -4,20 +4,24 @@ using System.IO;
 using System.Linq;
 using Cosmos.System;
 using Cosmos.System.Coroutines;
+using Cosmos.System.Network.Config;
+using Cosmos.System.Network.IPv4.TCP;
 using CreatorOS.Tools;
-using Mos.UI;
+using CreatorOS.UI;
+using PrismNetwork;
 using SipaaKernelV3.Graphics;
 using Color = System.Drawing.Color;
+using Cosmos.System.Network.IPv4;
 
-namespace Mos.Applications
+namespace CreatorOS.Applications
 {
     class Terminal : Window
     {
         int index = 1;
         string input = "";
         string dir = @"0:";
-        string temp = "";
-        bool writingText = false;
+        public string temp = "";
+        public bool writingText = false;
         bool programMode = false;
         public Terminal(SipaVGA vga, string title, uint width, uint height) : base(vga, title, width, height)
         {
@@ -94,6 +98,8 @@ namespace Mos.Applications
                     if(InForceArgs(args.Count, 0, 0)){
                         WriteLine("CreatorOS 0.0.1", Color.White);
                         WriteLine("Made by Twingamerdudes", Color.White);
+                        WriteLine("SipaGL made by SipaaDev", Color.White);
+                        WriteLine("PrismNetwork and Tools made by terminal.cs", Color.White);
                     }
                     break;
                 case "echo":
@@ -278,34 +284,19 @@ namespace Mos.Applications
                         WriteLine("echo [string] - prints a string to the screen", Color.White);
                     }
                     break;
-                case "compile":
-                    if(InForceArgs(args.Count, 1, 2))
+                case "ip":
+                    if(InForceArgs(args.Count, 0, 0))
                     {
-                        if(File.Exists(@dir + "\\" + @args[0]))
-                        {
-                            string[] lines = File.ReadAllLines(@dir + "\\" + @args[0]);
-                            List<string> code = new List<string>();
-                            foreach(string line in lines)
-                            {
-                                code.Add(line);
-                            }
-                            string compiliedCode = Compile.CompileCode(code);
-                            if(args.Count == 2)
-                            {
-                                if(File.Exists(@dir + "\\" + @args[1] + ".hr"))
-                                {
-                                    File.WriteAllLines(@dir + "\\" + @args[1] + ".hr", compiliedCode.Split("\n"));
-                                }
-                            }
-                            else
-                            {
-                                File.WriteAllLines(@dir + "\\" + @args[0] + ".hr", compiliedCode.Split("\n"));
-                            }
-                        }
-                        else
-                        {
-                            WriteLine("File does not exist!!!", Color.Red);
-                        }
+                        WriteLine("IP: " + NetworkConfiguration.CurrentNetworkConfig.IPConfig.IPAddress.ToString(), Color.White);
+                    }
+                    break;
+                case "ping":
+                    if(InForceArgs(args.Count, 1, 1))
+                    {
+                        WriteLine("Pinging " + args[0], Color.White);
+                        string[] ipNumbers = args[0].Trim().Split('.');
+                        ulong pingMiliseconds = NetworkManager.Ping(new Address(byte.Parse(ipNumbers[0]), byte.Parse(ipNumbers[1]), byte.Parse(ipNumbers[2]), byte.Parse(ipNumbers[3])));
+                        WriteLine(args[0] + "responded in" + pingMiliseconds + "ms", Color.White);
                     }
                     break;
                 default:

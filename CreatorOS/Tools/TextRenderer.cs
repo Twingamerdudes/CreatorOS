@@ -4,7 +4,7 @@ using Cosmos.System;
 using SipaaKernelV3.Graphics;
 using CosmosTTF;
 
-namespace Mos.Tools
+namespace CreatorOS.Tools
 {
     public class TextRenderer
     {
