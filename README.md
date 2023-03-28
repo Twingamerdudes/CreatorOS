@@ -19,9 +19,11 @@ Key code:
 | File System | ✔️ |
 | Programming langauge | 🟨 |
 | Real Hardware | ❔ |
-| Executables | ✖️|
+| Executables | ✔️ |
 | TTF Rendering | ✔️ |
-| Setup | ✔️|
+| Setup | ✔️ |
+| Network | ✖️ |
+| Browser | ✖️ |
 
 
 # Running the OS
