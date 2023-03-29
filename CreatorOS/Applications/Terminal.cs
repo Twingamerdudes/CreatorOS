@@ -8,7 +8,6 @@ using Cosmos.System.Network.Config;
 using Cosmos.System.Network.IPv4.TCP;
 using CreatorOS.Tools;
 using CreatorOS.UI;
-using PrismNetwork;
 using SipaaKernelV3.Graphics;
 using Color = System.Drawing.Color;
 using Cosmos.System.Network.IPv4;
@@ -22,7 +21,7 @@ namespace CreatorOS.Applications
         string dir = @"0:";
         public string temp = "";
         public bool writingText = false;
-        bool programMode = false;
+        public bool programMode = false;
         public Terminal(SipaVGA vga, string title, uint width, uint height) : base(vga, title, width, height)
         {
             
@@ -99,7 +98,6 @@ namespace CreatorOS.Applications
                         WriteLine("CreatorOS 0.0.1", Color.White);
                         WriteLine("Made by Twingamerdudes", Color.White);
                         WriteLine("SipaGL made by SipaaDev", Color.White);
-                        WriteLine("PrismNetwork and Tools made by terminal.cs", Color.White);
                     }
                     break;
                 case "echo":
@@ -287,16 +285,22 @@ namespace CreatorOS.Applications
                 case "ip":
                     if(InForceArgs(args.Count, 0, 0))
                     {
-                        WriteLine("IP: " + NetworkConfiguration.CurrentNetworkConfig.IPConfig.IPAddress.ToString(), Color.White);
+                        WriteLine("IP: " + NetworkConfiguration.CurrentAddress.ToString(), Color.White);
                     }
                     break;
-                case "ping":
+                case "asm":
                     if(InForceArgs(args.Count, 1, 1))
                     {
-                        WriteLine("Pinging " + args[0], Color.White);
-                        string[] ipNumbers = args[0].Trim().Split('.');
-                        ulong pingMiliseconds = NetworkManager.Ping(new Address(byte.Parse(ipNumbers[0]), byte.Parse(ipNumbers[1]), byte.Parse(ipNumbers[2]), byte.Parse(ipNumbers[3])));
-                        WriteLine(args[0] + "responded in" + pingMiliseconds + "ms", Color.White);
+                        if(File.Exists(@dir + "\\" + @args[0]))
+                        {
+                            List<string> code = File.ReadAllLines(@dir + "\\" + @args[0]).ToList();
+                            Asm.Run(code, this);
+                            programMode = true;
+                        }
+                        else
+                        {
+                            WriteLine("File does not exist!!!", Color.Red);
+                        }
                     }
                     break;
                 default:
@@ -463,6 +467,12 @@ namespace CreatorOS.Applications
             }
             programMode = false;
             WriteLine(">", Color.White);
+        }
+        public static ulong Ping(Address A)
+        {
+            DateTime T = DateTime.Now;
+            new TcpClient(80).Connect(A, 80);
+            return (ulong)(DateTime.Now - T).TotalMilliseconds;
         }
     }
 }

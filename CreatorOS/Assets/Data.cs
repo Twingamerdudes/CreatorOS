@@ -12,8 +12,11 @@ namespace CreatorOS.Assets
         public static byte[] CursorRaw;
         [ManifestResourceStream(ResourceName = "CreatorOS.Assets.Roboto.ttf")]
         public static byte[] Roboto_ttf;
+        [ManifestResourceStream(ResourceName = "CreatorOS.Assets.File.bmp")]
+        public static byte[] FileRaw;
 
         public static Bitmap Background1 = new Bitmap(Background1Raw);
         public static Bitmap Cursor = new Bitmap(CursorRaw);
+        public static Bitmap File = new Bitmap(FileRaw);
     }
 }

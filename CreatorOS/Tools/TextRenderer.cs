@@ -9,6 +9,7 @@ namespace CreatorOS.Tools
     public class TextRenderer
     {
         Dictionary<string, GlyphResult> glyphCacheLUT = new Dictionary<string, GlyphResult>();
+        public int CurrentWidth = 0;
         public int Draw(uint x, uint y, string text, SipaVGA vga, System.Drawing.Color color, int yoffest=0, Dictionary<string, System.Drawing.Color> colorCode=null, string importantKeyword=null)
         {
             if(text.Length < 0 || text == null) return 0;
@@ -56,6 +57,7 @@ namespace CreatorOS.Tools
         {
             if (text.Length < 0 || text == null) return;
             int offX = 0;
+            CurrentWidth = 0;
             foreach (char c in text)
             {
                 if (glyphCacheLUT.ContainsKey(c + color.Name))
@@ -63,11 +65,13 @@ namespace CreatorOS.Tools
                     GlyphResult glyphResult = glyphCacheLUT[c + color.Name];
                     Alpha.DrawImageAlpha(glyphResult.bmp, x + (uint)offX, (y + (uint)glyphResult.offY) + 10, (uint)SipaaKernelV3.Graphics.Color.MakeArgb(0, 0, 0, 0), vga);
                     offX += glyphResult.offX;
+                    CurrentWidth += offX;
                     continue;
                 }
                 GlyphResult g = TTFManager.RenderGlyphAsBitmap(font, c, color, size);
                 Alpha.DrawImageAlpha(g.bmp, x + (uint)offX, (y + (uint)g.offY) + 10, (uint)SipaaKernelV3.Graphics.Color.MakeArgb(0, 0, 0, 0), vga);
                 offX += g.offX;
+                CurrentWidth += offX;
                 glyphCacheLUT[c + color.Name] = g;
             }
 

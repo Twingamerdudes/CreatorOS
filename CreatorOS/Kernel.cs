@@ -10,8 +10,9 @@ using System;
 using System.IO;
 using Cosmos.System.Coroutines;
 using System.Collections.Generic;
-using PrismNetwork;
-using Cosmos.System.Network.Config;
+using Cosmos.System.Network.IPv4.UDP.DHCP;
+using Cosmos.System;
+using Console = System.Console;
 
 namespace CreatorOS
 {
@@ -62,7 +63,7 @@ namespace CreatorOS
                 File.WriteAllText(@"0:\root\config.cs", "Username: " + name + "\nPassword: " + pass);
                 File.WriteAllText(@"0:\home\welcome.txt", "Welcome to CreatorOS!");
                 Console.WriteLine("OS Setup complete");
-                Console.WriteLine("Press any key to contiune installation of utilities");
+                Console.WriteLine("Press any key to contiune installation of utilities and extra required files");
                 Console.ReadKey();
             }
             if (!Directory.Exists(@"0:\Applications"))
@@ -70,7 +71,17 @@ namespace CreatorOS
                 Console.WriteLine("Applications Directory does not exist, creating directory");
                 Directory.CreateDirectory(@"0:\Applications");
             }
-            NetworkManager.Init();
+            if (!Directory.Exists(@"0:\Desktop"))
+            {
+                Console.WriteLine("Desktop Directory does not exist, creating directory");
+                Directory.CreateDirectory(@"0:\Desktop");
+            }
+            using (var xClient = new DHCPClient())
+            {
+                /** Send a DHCP Discover packet **/
+                //This will automatically set the IP config after DHCP response
+                xClient.SendDiscoverPacket();
+            }
             vga = new SipaVGA(new SVGAMode(800, 600));
             fps = 0;
             TTFManager.RegisterFont("Roboto", Data.Roboto_ttf);

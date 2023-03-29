@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <None Remove="Assets\cursor.bmp" />
+      <None Remove="Assets\File.bmp" />
       <None Remove="Assets\Notepad.txt" />
       <None Remove="Assets\Ocean.bmp" />
       <None Remove="Assets\Roboto.ttf" />
@@ -29,6 +30,7 @@
 
     <ItemGroup>
       <EmbeddedResource Include="Assets\cursor.bmp" />
+      <EmbeddedResource Include="Assets\File.bmp" />
       <EmbeddedResource Include="Assets\Notepad.txt" />
       <EmbeddedResource Include="Assets\Ocean.bmp" />
       <EmbeddedResource Include="Assets\Inconsolata.ttf" />
@@ -45,9 +47,6 @@
     <ItemGroup>
       <Reference Include="CosmosTTF">
         <HintPath>..\CosmosTTF.dll</HintPath>
-      </Reference>
-      <Reference Include="PrismNetwork">
-        <HintPath>..\PrismNetwork.dll</HintPath>
       </Reference>
       <Reference Include="PrismTools">
         <HintPath>..\PrismTools.dll</HintPath>
